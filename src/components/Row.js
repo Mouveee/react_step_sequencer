@@ -4,6 +4,8 @@ import Tile from './Tile.js'
 
 import styles from './Row.module.css'
 
+import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline'
+
 export default class Row extends React.Component {
     constructor(props) {
         super(props)
@@ -33,6 +35,9 @@ export default class Row extends React.Component {
                             </Tile>
                         )
                 })}
+                <AddCircleOutlineIcon className={styles.BA_icon}>
+
+                </AddCircleOutlineIcon>
             </div>
         )
     }

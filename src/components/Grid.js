@@ -23,6 +23,7 @@ class Grid extends React.Component {
                         
                         return (
                             <Row 
+                                addStep={this.props.addStepToRow}
                                 row={row} 
                                 key={'row-' + key}
                                 rowKey={this.props.rowKey}

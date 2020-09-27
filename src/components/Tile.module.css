@@ -27,6 +27,6 @@
 
 .BA_tile.active.selected{
     background-color: violet;
-    border: none;
+    border: 6px solid black;
 }
 
