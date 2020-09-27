@@ -1,0 +1,12 @@
+* {
+    box-sizing: border-box;
+}
+
+.controlBar {
+    width:80%;
+    border: 1px solid violet;
+}
+
+.controlIcon:hover {
+    cursor: pointer;
+}

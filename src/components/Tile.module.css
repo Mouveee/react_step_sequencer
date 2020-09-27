@@ -1,0 +1,32 @@
+* {
+    box-sizing: border-box;
+}
+
+.BA_tile {
+    display: inline-block;
+    height: 24px;
+    width: 24px;
+    background-color: black;
+    transition: 300ms;
+    margin: 12px;
+}
+
+.BA_tile:hover{
+    background-color: rgb(49, 39, 39);
+    cursor: pointer;
+}
+
+.BA_tile.active{
+    border: 11.5px solid black;
+    background-color: violet;
+}
+
+.BA_tile.selected{
+    background-color: violet;
+}
+
+.BA_tile.active.selected{
+    background-color: violet;
+    border: none;
+}
+
