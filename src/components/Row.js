@@ -12,8 +12,6 @@ export default class Row extends React.Component {
 
         this.state = {
             currentTile: 0,
-            sound: null,
-            muted: false,
             tiles: [...this.props.row]
         }
     }
@@ -30,6 +28,7 @@ export default class Row extends React.Component {
                         return (
                             <Tile
                                 key={'tile-' + index}
+                                selected={this.props.rowSelected[index]}
                                 tile={tile}
                             >
                             </Tile>

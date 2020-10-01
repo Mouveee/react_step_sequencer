@@ -27,6 +27,7 @@ class Grid extends React.Component {
                         return (
                             <Row 
                                 addStep={this.props.addStepToRow}
+                                rowSelected={this.props.gridSelected[index]}
                                 row={row}  
                                 key={'row-' + key}
                                 rowKey={this.props.rowKey}

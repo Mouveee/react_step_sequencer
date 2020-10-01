@@ -7,6 +7,7 @@ class Tile extends React.Component {
         super(props)
 
         this.state = {
+            selected: this.props.selected,
             tile: this.props.tile
         }
     }
@@ -22,7 +23,7 @@ class Tile extends React.Component {
                         ''
                     } 
 
-                    ${this.state.tile.selected ? 
+                    ${this.props.selected ? 
                         styles.selected : 
                         ''
                     }
@@ -31,7 +32,7 @@ class Tile extends React.Component {
                         styles.fourth: 
                         ''
                     }
-                    
+
                     `} 
                 onClick={this.state.tile.handleClick}
             >    
