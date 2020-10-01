@@ -1,0 +1,11 @@
+* {
+    box-sizing: border-box;
+}
+
+.BA_grid {
+    width:fit-content;
+    padding: 34px;
+    border: 1px solid violet;
+    border-radius: 12px;
+    margin: 12px;
+}

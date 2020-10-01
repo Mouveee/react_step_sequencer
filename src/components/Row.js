@@ -35,9 +35,10 @@ export default class Row extends React.Component {
                             </Tile>
                         )
                 })}
-                <AddCircleOutlineIcon className={styles.BA_icon}>
-
-                </AddCircleOutlineIcon>
+                <div className={styles.BA_icon}>
+                    <AddCircleOutlineIcon>
+                    </AddCircleOutlineIcon>
+                </div>
             </div>
         )
     }

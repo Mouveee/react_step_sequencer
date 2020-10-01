@@ -7,8 +7,12 @@
     height: 24px;
     width: 24px;
     background-color: black;
-    transition: 300ms;
+    transition: 280ms;
     margin: 12px;
+}
+
+.BA_tile.fourth {
+    background-color: rgb(110, 45, 110);
 }
 
 .BA_tile:hover{

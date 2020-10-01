@@ -1,21 +1,24 @@
 import React from 'react';
+import * as Tone from 'tone'
 
 import ControlBar from './components/ControlBar'
 import Grid from './components/Grid'
+import Selector from './components/Selector'
+import Synth from './components/Synth'
 
 import {Sounds} from './Sounds.js'
 
 import './App.css';
-
 
 class SoundObject {
   constructor(file, locationInGrid, status, activateTile) {
       this.file = file
       this.locationInGrid = locationInGrid
       this.active = status //did the user click the tile / will it be played?
-      this.selected = false
+      this.selected = false //is this in current time being played?
       this.handleClick = () => activateTile(locationInGrid)
       this.play = () => {
+        this.file.currentTime = 0 
         this.file.play()
       }
   }
@@ -30,25 +33,20 @@ class App extends React.Component {
     this.state = {
       currentTimer: 0,
       grids: [this.createGrid()],
+      gridsSelected: [this.createGridSelected()],
       tempo: 120, 
       playing: false,
       loop: this.loop
     }
 
     this.activateTile.bind(this)
+    this.changeTempo.bind(this)
     this.startButtonClick.bind(this)
     this.loop.bind(this)
     this.stopButtonClick.bind(this)
     this.setNextStep.bind(this)
 
-    document.addEventListener('keydown', e => {
-      if (e.code === 'Space') {
-        e.preventDefault()
-        if (!this.state.playing) {
-          this.startButtonClick()
-        } else this.stopButtonClick()
-      }
-    })
+    document.addEventListener('keydown', this.setKeyEvents)
   }
 
   activateTile = location => {
@@ -66,35 +64,55 @@ class App extends React.Component {
   }
 
   changeTempo = newTempo => {
-    this.setState({tempo: newTempo})
+    this.setState({tempo: newTempo})  
   }
-
 
   createGrid = () => {
     let newGrid = []
 
-    for (let i = 0; i < 2; i++) {
-      newGrid[i] =  new Array(8).fill().map((tile, index) => {
-        return new SoundObject(i === 0 ? Sounds.kick : Sounds.snare, [i, index] , false, this.activateTile)
+    Object.keys(Sounds).reverse().forEach((sound, i) => {
+      newGrid[i] =  new Array(16).fill().map((tile, index) => {
+        Sounds[sound].preload = true
+        return new SoundObject(Sounds[sound].cloneNode(), [i, index] , false, this.activateTile)
       })
-    }
+    })
 
     return newGrid
   }
 
+  createGridSelected = () => {
+    let newGrid = [new Array(8).fill(false), new Array(8).fill(false)]
+
+    this.setState({gridsSelected: [[newGrid]]})
+  }
+
   loop = loop => {
     if(this.state.playing) {
-      this.setState({timer: setTimeout(this.state.loop, this.state.tempo / 60 * 1000 / 4)})
+      this.setState({timer: setTimeout(this.state.loop, 60 / this.state.tempo * 1000 / 4)})
       this.setNextStep()
+    }
+  }
+
+  setKeyEvents = e => {
+    if (e.code === 'Space') {
+      e.preventDefault()
+      if (!this.state.playing) {
+        this.startButtonClick()
+      } else this.stopButtonClick()
+    } else if(e.code === 'KeyA') {
+      e.preventDefault()
+      //create a synth and connect it to the main output (your speakers)
+        const synth = new Tone.Synth().toDestination();
+
+        //play a middle 'C' for the duration of an 8th note
+        synth.triggerAttackRelease("C2", "4n");
     }
   }
 
   setNextStep = () => {
     let newGrid = this.state.grids[0]
 
-
     newGrid = newGrid.map((row, rowIndex) => {
-      console.log(`length of row: ${row.length}`)
       if (row[this.state.currentTimer].active) row[this.state.currentTimer].play()
       row[this.state.currentTimer].selected =  true
 
@@ -105,12 +123,11 @@ class App extends React.Component {
       return row
     })
 
-    console.log(newGrid)
     newGrid = [[...newGrid]]
 
     this.setState({
       grids: newGrid,
-      currentTimer: this.state.currentTimer >= 7 ? 0 : this.state.currentTimer + 1
+      currentTimer: this.state.currentTimer >= 15 ? 0 : this.state.currentTimer + 1
     })
   }
 
@@ -120,10 +137,22 @@ class App extends React.Component {
   }
 
   stopButtonClick = () => {
+    console.log('stop button triggered')
+
     if (this.state.playing) {
-      clearTimeout(this.state.timer)
+      let newGrid = [...this.state.grids[0]]
+
+      for (let i = 0; i < newGrid.length; i++) {
+        for (let j = 0; j < newGrid[i].lenght; i++) {
+          console.log(newGrid[i][j].selected)
+          newGrid[i][j].selected = false
+        }
+      }
+
+      newGrid = [[...newGrid]]
 
       this.setState({
+        grids: newGrid,
         currentTimer: 0,
         playing: false,
         timer: null
@@ -135,8 +164,10 @@ class App extends React.Component {
     return ( 
       <div className="App">
           <ControlBar
+            changeTempo={this.changeTempo}
             startButtonClick={this.startButtonClick}
             stopButtonClick={this.stopButtonClick}
+            tempo={this.state.tempo}
           >
           </ControlBar>
 
@@ -145,6 +176,10 @@ class App extends React.Component {
             addStepToRow={this.addStepToRow}
           >
           </Grid>
+
+          <Selector></Selector>
+
+          <Synth></Synth>
       </div>
     )
   }

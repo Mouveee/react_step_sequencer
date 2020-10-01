@@ -3,10 +3,16 @@
 }
 
 .controlBar {
-    width:80%;
+    width:60%;
+    height: 15vh;
+    padding-top: 12px;
     border: 1px solid violet;
 }
 
 .controlIcon:hover {
     cursor: pointer;
+}
+
+.infoField {
+    color: violet;
 }

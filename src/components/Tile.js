@@ -14,7 +14,25 @@ class Tile extends React.Component {
     render() {
         return (
             <div 
-                className={`${styles.BA_tile} ${this.state.tile.active ? styles.active : ''}`} 
+                className={`
+                    ${styles.BA_tile} 
+
+                    ${this.state.tile.active ? 
+                        styles.active : 
+                        ''
+                    } 
+
+                    ${this.state.tile.selected ? 
+                        styles.selected : 
+                        ''
+                    }
+
+                    ${(this.state.tile.locationInGrid[1] + 1) % 4 === 1 ? 
+                        styles.fourth: 
+                        ''
+                    }
+                    
+                    `} 
                 onClick={this.state.tile.handleClick}
             >    
             </div>

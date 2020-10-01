@@ -35,8 +35,19 @@ export default function(props) {
             </Grid>
 
             <Grid item xs>
-                <Slider>
+                <Slider
+                    defaultValue={120}
+                    onChange={(e, value) => props.changeTempo(value)}
+                    min={20}
+                    max={220}
+                >
                 </Slider>
+            </Grid>
+
+            <Grid item xs>
+                <p className={styles.infoField}>
+                    {props.tempo}
+                </p>
             </Grid>
         </Grid>
     )

@@ -1,0 +1,20 @@
+* {
+    box-sizing: border-box;
+}
+
+.selectorMenu {
+    list-style-type: none;
+    width: fit-content;
+    border: 1px solid rgb(194, 83, 194);
+    padding: 1em;
+}
+
+.selectorMenuItem {
+    transition: 150ms;
+}
+
+.selectorMenuItem:hover {
+    color: violet;
+    cursor: pointer;
+    background-color: ghostwhite;
+}

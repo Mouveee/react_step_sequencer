@@ -1,5 +1,7 @@
 import * as React from 'react'
 
+import styles from './Grid.module.css'
+
 import Row from './Row.js'
 
 
@@ -16,7 +18,8 @@ class Grid extends React.Component {
 
     render() {
         return(
-            <div id="BA_grid" key="BA_grid">               
+            <div className={styles.BA_grid} key="BA_grid">     
+                DRUMS          
                 {
                     this.state.grid.map((row, index) => {
                         const key = index.toString()
@@ -24,7 +27,7 @@ class Grid extends React.Component {
                         return (
                             <Row 
                                 addStep={this.props.addStepToRow}
-                                row={row} 
+                                row={row}  
                                 key={'row-' + key}
                                 rowKey={this.props.rowKey}
                             >
