@@ -11,14 +11,14 @@ export default class Row extends React.Component {
         super(props)
 
         this.state = {
-            currentTile: 0,
             tiles: [...this.props.row]
         }
     }
 
     render() {
         let rowKey = this.props.rowKey
-
+        console.log(this.props.rowSelected)
+       
         return (
             <div 
                 key={rowKey} 
@@ -35,7 +35,9 @@ export default class Row extends React.Component {
                         )
                 })}
                 <div className={styles.BA_icon}>
-                    <AddCircleOutlineIcon>
+                    <AddCircleOutlineIcon
+                        onClick={this.props.addStep}
+                    >
                     </AddCircleOutlineIcon>
                 </div>
             </div>

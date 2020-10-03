@@ -3,6 +3,7 @@
 }
 
 .BA_grid {
+    background-color:white;
     width:fit-content;
     padding: 34px;
     border: 1px solid violet;

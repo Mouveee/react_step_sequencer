@@ -18,8 +18,8 @@ class Grid extends React.Component {
 
     render() {
         return(
-            <div className={styles.BA_grid} key="BA_grid">     
-                DRUMS          
+            <div className={styles.BA_grid} key="BA_grid">  
+                {this.props.name}
                 {
                     this.state.grid.map((row, index) => {
                         const key = index.toString()

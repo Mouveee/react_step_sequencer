@@ -11,12 +11,11 @@ import {Sounds} from './Sounds.js'
 import './App.css';
 
 class SoundObject {
-  constructor(file, locationInGrid, status, activateTile) {
+  constructor(file, locationInGrid, status, activateDrumTile) {
       this.file = file
       this.locationInGrid = locationInGrid
       this.active = status //did the user click the tile / will it be played?
-      this.selected = false //is this in current time being played?
-      this.handleClick = () => activateTile(locationInGrid)
+      this.handleClick = () => activateDrumTile(locationInGrid)
       this.play = () => {
         this.file.currentTime = 0 
         this.file.play()
@@ -25,21 +24,23 @@ class SoundObject {
 }
 
 
-
 class App extends React.Component {
   constructor() {
     super()
 
     this.state = {
       currentTimer: 0,
-      grids: [this.createGrid()],
-      gridsSelected: [this.createGridSelected()],
+      gridsDrums: [this.createDrumGrid()],
+      gridsSelectedDrums: [this.createGridSelected(Object.keys(Sounds).length)],
+      gridsSynth: [this.createSynthGrid()],
+      gridsSelectedSynths: [this.createGridSelected(8)],
       tempo: 120, 
       playing: false,
       loop: this.loop
     }
 
-    this.activateTile.bind(this)
+    this.activateDrumTile.bind(this)
+    this.activateSynthTile.bind(this)
     this.changeTempo.bind(this)
     this.startButtonClick.bind(this)
     this.loop.bind(this)
@@ -49,14 +50,24 @@ class App extends React.Component {
     document.addEventListener('keydown', this.setKeyEvents)
   }
 
-  activateTile = location => {
-    let newGrid = [...this.state.grids]
+  activateDrumTile = location => {
+    let newGrid = [...this.state.gridsDrums]
     let x = location[0]
     let y = location[1]
 
     newGrid[0][x][y].active = !newGrid[0][x][y].active
 
-    this.setState({grids: newGrid})
+    this.setState({gridsDrums: newGrid})
+  }
+
+  activateSynthTile = location => {
+    let newGrid = [...this.state.gridsSynth]
+    let x = location[0]
+    let y = location[1]
+
+    newGrid[0][x][y].active = !newGrid[0][x][y].active
+
+    this.setState({gridsSynth: newGrid})
   }
 
   addStepToRow = () => {
@@ -67,26 +78,51 @@ class App extends React.Component {
     this.setState({tempo: newTempo})  
   }
 
-  createGrid = () => {
+  createDrumGrid = () => {
     let newGrid = []
 
     Object.keys(Sounds).reverse().forEach((sound, i) => {
-      newGrid[i] =  new Array(16).fill().map((tile, index) => {
+      newGrid[i] =  new Array(8).fill().map((tile, index) => {
         Sounds[sound].preload = true
-        return new SoundObject(Sounds[sound].cloneNode(), [i, index] , false, this.activateTile)
+        return new SoundObject(Sounds[sound], [i, index] , false, this.activateDrumTile)
       })
     })
 
     return newGrid
   }
 
-  createGridSelected = () => {
-    let newGrid = [new Array(8).fill(false), new Array(8).fill(false)]
+  createGridSelected = len => {
+    let newGrid = [] 
+    
+    for (let index = 0; index < len; index++) {
+      newGrid[index] = new Array(8).fill(false)
+    }
 
-    this.setState({gridsSelected: [[newGrid]]})
+    console.log('created selected grid of length: ' + newGrid.length)
+    return newGrid
   }
 
-  loop = loop => {
+  createSynthGrid = () => {
+    let newGrid = []
+    let tones = ['c', 'd', 'e', 'f', 'g', 'a', 'b', 'c']
+    
+    for(let i = 0; i < 8; i++) {
+      newGrid[i] = new Array(8).fill().map((tile, index) => {
+        let location = [i, index]
+
+        return {
+          active: false,
+          locationInGrid: location, 
+          handleClick: () => this.activateSynthTile(location),
+          tone: tones[i] + '3'
+        }
+      })
+    }
+
+    return newGrid
+  }
+
+  loop = () => {
     if(this.state.playing) {
       this.setState({timer: setTimeout(this.state.loop, 60 / this.state.tempo * 1000 / 4)})
       this.setNextStep()
@@ -101,24 +137,24 @@ class App extends React.Component {
       } else this.stopButtonClick()
     } else if(e.code === 'KeyA') {
       e.preventDefault()
-      //create a synth and connect it to the main output (your speakers)
         const synth = new Tone.Synth().toDestination();
 
-        //play a middle 'C' for the duration of an 8th note
-        synth.triggerAttackRelease("C2", "4n");
+        synth.triggerAttackRelease("C3", "8n");
     }
   }
 
   setNextStep = () => {
-    let newGrid = this.state.grids[0]
+    let newGrid = this.state.gridsSelectedDrums[0]
 
     newGrid = newGrid.map((row, rowIndex) => {
-      if (row[this.state.currentTimer].active) row[this.state.currentTimer].play()
-      row[this.state.currentTimer].selected =  true
+      if (this.state.gridsDrums[0][rowIndex][this.state.currentTimer].active) {
+        this.state.gridsDrums[0][rowIndex][this.state.currentTimer].play()
+      }
+      row[this.state.currentTimer] =  true
 
       if (this.state.currentTimer !== 0) {
-        row[this.state.currentTimer - 1].selected = false
-      } else row[row.length - 1].selected = false
+        row[this.state.currentTimer - 1] = false
+      } else row[row.length - 1] = false
 
       return row
     })
@@ -126,8 +162,8 @@ class App extends React.Component {
     newGrid = [[...newGrid]]
 
     this.setState({
-      grids: newGrid,
-      currentTimer: this.state.currentTimer >= 15 ? 0 : this.state.currentTimer + 1
+      gridsSelectedDrums: newGrid,
+      currentTimer: this.state.currentTimer >= 7 ? 0 : this.state.currentTimer + 1
     })
   }
 
@@ -137,22 +173,19 @@ class App extends React.Component {
   }
 
   stopButtonClick = () => {
-    console.log('stop button triggered')
-
     if (this.state.playing) {
-      let newGrid = [...this.state.grids[0]]
+      let newGrid = [...this.state.gridsSelectedDrums[0]]
 
       for (let i = 0; i < newGrid.length; i++) {
-        for (let j = 0; j < newGrid[i].lenght; i++) {
-          console.log(newGrid[i][j].selected)
-          newGrid[i][j].selected = false
+        for (let j = 0; j < newGrid[i].length; j++) {
+          newGrid[i][j] = false
         }
       }
 
       newGrid = [[...newGrid]]
 
       this.setState({
-        grids: newGrid,
+        gridsDrumsSelected: newGrid,
         currentTimer: 0,
         playing: false,
         timer: null
@@ -172,7 +205,17 @@ class App extends React.Component {
           </ControlBar>
 
           <Grid
-            grid = {this.state.grids[0]}
+            name={'DRUMS'}
+            grid = {this.state.gridsDrums[0]}
+            gridSelected = {this.state.gridsSelectedDrums[0]}
+            addStepToRow={this.addStepToRow}
+          >
+          </Grid>
+
+          <Grid
+            name={'SYNTH'}
+            grid = {this.state.gridsSynth[0]}
+            gridSelected = {this.state.gridsSelectedSynths[0]}
             addStepToRow={this.addStepToRow}
           >
           </Grid>
