@@ -23,6 +23,30 @@ class SoundObject {
   }
 }
 
+class SynthObject {
+  constructor(location, activateSynthTile, synth, tone) {
+    this.active = false
+    this.locationInGrid = location
+    this.play = () => synth.triggerAttackRelease(tone, "16n")
+    this.handleClick = () => activateSynthTile(location)
+    this.tone = tone
+  }
+}
+
+const keyCodes = {
+  'a': 0,
+  's': 1,
+  'd': 2,
+  'f': 3,
+  'g': 4,
+  'h': 5,
+  'j': 6,
+  'k': 7,
+  'l': 8
+}
+
+const synth = new Tone.Synth().toDestination()
+
 
 class App extends React.Component {
   constructor() {
@@ -34,6 +58,7 @@ class App extends React.Component {
       gridsSelectedDrums: [this.createGridSelected(Object.keys(Sounds).length)],
       gridsSynth: [this.createSynthGrid()],
       gridsSelectedSynths: [this.createGridSelected(8)],
+      synth: synth,
       tempo: 120, 
       playing: false,
       loop: this.loop
@@ -42,12 +67,13 @@ class App extends React.Component {
     this.activateDrumTile.bind(this)
     this.activateSynthTile.bind(this)
     this.changeTempo.bind(this)
+    this.createSynthGrid.bind(this)
     this.startButtonClick.bind(this)
     this.loop.bind(this)
     this.stopButtonClick.bind(this)
     this.setNextStep.bind(this)
 
-    document.addEventListener('keydown', this.setKeyEvents)
+    document.addEventListener('keypress', this.setKeyEvents)
   }
 
   activateDrumTile = location => {
@@ -98,7 +124,6 @@ class App extends React.Component {
       newGrid[index] = new Array(8).fill(false)
     }
 
-    console.log('created selected grid of length: ' + newGrid.length)
     return newGrid
   }
 
@@ -107,16 +132,13 @@ class App extends React.Component {
     let tones = ['c', 'd', 'e', 'f', 'g', 'a', 'b', 'c']
     
     for(let i = 0; i < 8; i++) {
-      newGrid[i] = new Array(8).fill().map((tile, index) => {
-        let location = [i, index]
+      newGrid[i] = []
 
-        return {
-          active: false,
-          locationInGrid: location, 
-          handleClick: () => this.activateSynthTile(location),
-          tone: tones[i] + '3'
-        }
-      })
+      for(let j = 0; j < 8; j++) {
+        let location = [i, j]
+
+        newGrid[i][j] = new SynthObject(location, this.activateSynthTile, synth, tones[i] + '3')
+      }
     }
 
     return newGrid
@@ -129,17 +151,21 @@ class App extends React.Component {
     }
   }
 
+  playSynthNote = (note, length) => {
+    this.state.synth.triggerAttackRelease(note, length)
+  }
+
   setKeyEvents = e => {
     if (e.code === 'Space') {
       e.preventDefault()
       if (!this.state.playing) {
         this.startButtonClick()
       } else this.stopButtonClick()
-    } else if(e.code === 'KeyA') {
-      e.preventDefault()
-        const synth = new Tone.Synth().toDestination();
+    } else if(keyCodes.hasOwnProperty(e.key)) {
+      let tones = ['C', 'D', 'E', 'F', 'G', 'A', 'B', 'C']
 
-        synth.triggerAttackRelease("C3", "8n");
+      e.preventDefault()
+
     }
   }
 
@@ -167,8 +193,8 @@ class App extends React.Component {
     })
   }
 
-  startButtonClick = async () => { 
-    await this.setState({playing: !this.state.playing})
+  startButtonClick = () => { 
+    this.setState({playing: !this.state.playing})
     if (this.state.playing) this.loop()
   }
 

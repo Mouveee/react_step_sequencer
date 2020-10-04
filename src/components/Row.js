@@ -17,7 +17,6 @@ export default class Row extends React.Component {
 
     render() {
         let rowKey = this.props.rowKey
-        console.log(this.props.rowSelected)
        
         return (
             <div 
